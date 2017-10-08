@@ -17,7 +17,7 @@
 
 
 
-  <meta name="keywords" content="test," />
+  <meta name="keywords" content="wangzai，旺仔，Android" />
 
 
 
@@ -36,7 +36,7 @@
      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
 <![endif]-->
 
-  <title> test-blog |  </title>
+  <title> appcompat-v7 包是如何向下兼容主题样式的 |  </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -58,10 +58,10 @@
                     <i class="fa fa-remove"></i>
                 </span>
                  
-                 <img id="about-card-picture" src="/images/luwangkatong.jpg" class="skip"/>
+                 <img id="about-card-picture" src="/images/sunwukong.jpg" class="skip"/>
                  
                     <h4 id="about-card-name">Hi,I'm wangzai</h4>
-                    <h5 id="about-card-bio"><p>一名 Android 开发人员，目前正在 Android 路上. :)</p></h5>
+                    <h5 id="about-card-bio"><p>Android Developer</p></h5>
                     <div id="profile_social">
                         <h6>My Social Profiles</h6>
                             <a href="https://github.com/dawangzai" target="_blank"><i class="fa fa-github"></i></a>
@@ -92,7 +92,7 @@
       <span class="logo-line-before">
         <i></i>
       </span>
-        <img class="skip custom_logo" alt="" src="/images/luwangkatong.jpg">
+        <img class="skip custom_logo" alt="" src="/images/sunwukong.jpg">
         <span class="logo-line-after">
           <i></i>
         </span>
@@ -160,7 +160,7 @@
             
             
               
-                test-blog
+                appcompat-v7 包是如何向下兼容主题样式的
               
             
           </h1>
@@ -169,8 +169,8 @@
         <div class="post-meta">
           <span class="post-time">
             发表于
-            <time itemprop="dateCreated" datetime="2017-03-05T14:48:12+08:00" content="2017-03-05">
-              2017-03-05
+            <time itemprop="dateCreated" datetime="2017-10-07T09:35:12+08:00" content="2017-10-07">
+              2017-10-07
             </time>
           </span>
 
@@ -179,8 +179,8 @@
               &nbsp; | &nbsp; 分类于
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/test/" itemprop="url" rel="index">
-                    <span itemprop="name">test</span>
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
                   </a>
                 </span>
 
@@ -208,19 +208,26 @@
       
 
       
-        <span itemprop="articleBody"><p>test</p>
+        <span itemprop="articleBody"><p>截至目前为止 Android 的版本已经出到了 8.0，但是一些低版本 Android 系统的手机依然有一定的市场，为了让在低版本的 Android 系统上运行的 APP 支持新版本推出的一些功能，Google 给我开发者提供了一系列的 Support Library 来解决高版本 SDK 开发的向下兼容，比如 appcompat-v7,support-v4 等。那么在 v7 appcompat 包中就添加了对操作栏以及 Material Design 样式的界面以及主题的支持。 <a id="more"></a></p>
+<h2 id="什么时候使用-v7-包中的兼容主题"><a href="#什么时候使用-v7-包中的兼容主题" class="headerlink" title="什么时候使用 v7 包中的兼容主题"></a>什么时候使用 v7 包中的兼容主题</h2><p>Google 在 Android 5.0（API 21）中提供了 Material Design 样式的主题  <code>android:Theme.Material.xxx</code> ，毫无疑问在 5.0 以前的版本中是不存在这种主题的，为了达到一致的操作体验，必须让我们的 APP 在低版本的 Android 平台上也能够使用这种主题，这时 v7 包提供的兼容主题 <code>Theme.AppCompat.xxx</code> 就起到了作用，它就能帮我们去适应多个平台。</p>
+<h2 id="几个基础知识"><a href="#几个基础知识" class="headerlink" title="几个基础知识"></a>几个基础知识</h2><p>下面是在引用样式和主题的几个知识点</p>
+<ul>
+<li><code>android:</code>， 在引用的主题和样式前添加 <code>android:</code> 表示使用 APP 运行的当前平台的主题和样式，不添加就表示使用我们 APP 提供的主题和样式。 比如 <code>android:Theme.Material</code> 和 <code>Theme.AppCompat.Light</code> ，还用一些属性的引用也是同样的意思比如 <code>&lt;item name=&quot;colorPrimary&quot;&gt;xxx&lt;/item&gt;</code> 和 <code>&lt;item name=&quot;android:colorPrimary&quot;&gt;xxx&lt;/item&gt;</code>。</li>
+<li><code>?attr/</code> 表示引用主题属性值也就是 <code>attrs.xml</code> 中的值。比如 <code>&lt;item name=&quot;colorPrimary&quot;&gt;?attr/colorPrimary&lt;/item&gt;</code> 表示应用当前使用的主题中的 <code>colorPrimary</code> 的值，当然也可以加上 <code>android:</code> 比如 <code>&lt;item name=&quot;colorPrimary&quot;&gt;?android:attr/colorPrimary&lt;/item&gt;</code> 表示 APP 当前运行平台对应的属性值。</li>
+</ul>
+<h2 id="v7-包如何向下兼容主题和样式"><a href="#v7-包如何向下兼容主题和样式" class="headerlink" title="v7 包如何向下兼容主题和样式"></a>v7 包如何向下兼容主题和样式</h2><p>在 Android 5.0 之后最常用的主题是 <code>android:Theme.Material.Light.NoActionBar</code> 为了考虑兼容性我们一般会用 v7 包中的 <code>Theme.AppCompat.Light.NoActionBar</code> 替代，那么该主题是怎么做到向低版本（在 appcompat-v7:24.2.0 版本之前兼容到 Android 2.1 API Level 7，24.2.0之后的版本最低兼容到 Android 2.3 API Level 9）兼容的呢。</p>
+<p>追踪 <code>Theme.AppCompat.Light.NoActionBar</code> 的父主题，我么会发现它会去继承 <code>Base.V7.Theme.AppCompat.Light</code> 主题，在 <code>Base.V7.Theme.AppCompat.Light</code> 主题中它会去补全 Android 2.3 相对 5.0 缺少的属性，也就是说低版本没有的属性我们都会去帮你加上然后给它赋上相应的值以达到兼容的效果</p>
+<p><img src="http://os3f3u1vv.bkt.clouddn.com/blog/image/appcompat-v7-2.png" alt=""></p>
+<p>如果我们的 APP 运行在 5.0 的系统上，这时系统存在 <code>android:Theme.Material.Light.NoActionBar</code> 主题，所以在 <code>Base.V7.Theme.AppCompat.Light</code> 之前它会去根据系统的版本区别处理，在 5.0 以上的系统上就会把 <code>Base.V7.Theme.AppCompat.Light</code> 补全的属性再次进行复写，这里用了 <code>?android:attr/</code> 很显然这里把这些属性的值改回了使用系统的属性值。</p>
+<p><img src="http://os3f3u1vv.bkt.clouddn.com/blog/image/appcompat-v7-5.png" alt=""></p>
+<p>如果你没有就给你补全，如果你有了就用你存在的，就是这么做的。</p>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>主题样式的向下兼容就是为了 APP 能在不同的 Android 平台上有一致的外观。在 appcompat-v7 包中它会在 <code>attrs.xml</code> 中去定义低版本没有的一些属性，然后在对应的兼容主题中去应用这些属性，以达到兼容的效果。</p>
 </span>
       
     </div>
 
     <footer class="post-footer">
 
-      
-        <div class="post-tags">
-          
-            <a href="/tags/test/" rel="tag">#test</a>
-          
-        </div>
       
     <!-- 
      
@@ -251,11 +258,26 @@
     -->
       
       <div class="copyright">
-      <strong>版权声明: </strong>本文是wangzai原创文章，转载请注明出处！</br>
-      <strong>本文链接: </strong>http://wangzai.com/2017/03/05/test-blog/ </br>
+      <strong>版权声明: </strong>本文是 wangzai 原创文章，转载请注明出处！</br>
+      <strong>本文链接: </strong>http://dawangzai.com/2017/10/07/appcompat-v7 包是如何向下兼容主题样式的/ </br>
       </div>
       
 
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <h4>PREVIOUS POST</h4>
+              <a href="/2017/10/06/我要开始写博客了/" rel="next" title="我要开始写博客了">
+                <i class="fa fa-chevron-left"></i> 我要开始写博客了
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
       
 
   
