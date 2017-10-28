@@ -36,7 +36,7 @@
      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
 <![endif]-->
 
-  <title> 爱摄影上线了 |  </title>
+  <title> Android Gradle Plugin 2.3.3 升级 3.0.0 遇到的问题 |  </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -160,7 +160,7 @@
             
             
               
-                爱摄影上线了
+                Android Gradle Plugin 2.3.3 升级 3.0.0 遇到的问题
               
             
           </h1>
@@ -169,8 +169,8 @@
         <div class="post-meta">
           <span class="post-time">
             发表于
-            <time itemprop="dateCreated" datetime="2017-10-24T13:32:12+08:00" content="2017-10-24">
-              2017-10-24
+            <time itemprop="dateCreated" datetime="2017-10-28T13:32:12+08:00" content="2017-10-28">
+              2017-10-28
             </time>
           </span>
 
@@ -179,8 +179,8 @@
               &nbsp; | &nbsp; 分类于
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/wangzai/" itemprop="url" rel="index">
-                    <span itemprop="name">wangzai</span>
+                  <a href="/categories/android/" itemprop="url" rel="index">
+                    <span itemprop="name">android</span>
                   </a>
                 </span>
 
@@ -208,12 +208,108 @@
       
 
       
-        <span itemprop="articleBody"><p><strong>我独立开发设计的一款 APP “爱摄影” 今天终于上线了！</strong></p>
-<p>做 Android 开发也有一段时间了一直想写一款自己的 App 总结一下这段时间的工作积累，但是苦于没有合适的开放 Api ，计划就一直被搁置着，直到年前在朋友圈看到一位学长上线了他 App “尚图” 从而知道了 <a href="https://unsplash.com" target="_blank" rel="external">Unsplash</a> 网站。 打开一看我靠它居然提供了一套完整的 Api 接口，有一种发现新大陆的赶脚，现在米已有就等下锅啦。 <a id="more"></a></p>
-<h2 id="从开发到放弃"><a href="#从开发到放弃" class="headerlink" title="从开发到放弃"></a>从开发到放弃</h2><p>既然有了 Api 那就开干吧。但是当时还是刚入门不久的菜鸟，虽然很认真的在做但是还是没弄出什么结果来。封装完整的网络框架，搭建合适的 App 架构等对于当时的我来说还是太难了，没有经验和知识积累又想处处都做得合理到最后只能是处处都不合理，捣鼓了个把月只弄出个半成品，只能暂时搁置了。</p>
-<h2 id="爱摄影上线了"><a href="#爱摄影上线了" class="headerlink" title="爱摄影上线了"></a>爱摄影上线了</h2><p>这段时间又重新拾起了这个项目，并取名 “爱摄影” 。目标是集成 <a href="https://unsplash.com" target="_blank" rel="external">Unsplash</a> Api 提供的所有功能，把它做成一个有意义的东西，虽然不一定有什么用 ~~</p>
-<p>目前 “爱摄影” 只有浏览照片以及用户登录这两块，虽然只有一小部分但也算是前进了一大步（哈哈）。</p>
-</span>
+        <span itemprop="articleBody"><center><img src="http://os3f3u1vv.bkt.clouddn.com/blog/image/Android%20Gradle%20Plugin%203.0.0.PNG" alt=""></center>
+
+<p>27 号早上到公司打开 As 就提示你有新版本 3.0 可以升级，于是乎果断升级。重启之后提示有新的Gradle 插件于是也果断升级，没想到升级之后出现一大堆错误。下面就介绍一下我遇到的问题，以及解决方案。<a id="more"></a></p>
+<h2 id="Cannot-set-the-value-of-read-only-property-‘outputFile’"><a href="#Cannot-set-the-value-of-read-only-property-‘outputFile’" class="headerlink" title="Cannot set the value of read-only property ‘outputFile’"></a>Cannot set the value of read-only property ‘outputFile’</h2><p>第一个报错就是这个，不能给只读的 <code>outputFile</code> 设置值</p>
+<pre><code>Cannot set the value of read-only property &apos;outputFile&apos;
+for ApkVariantOutputImpl_Decorated{apkData=Main{type=MAIN, fullName=googleplayDebug, filters=[]}}
+of type com.android.build.gradle.internal.api.ApkVariantOutputImpl.
+</code></pre><p>这是因为我使用了这种方式去修改生成的 apk 的文件名，这也是网上最常用的写法</p>
+<pre><code>applicationVariants.all { variant -&gt;
+        variant.outputs.each { output -&gt;
+            if (output.outputFile != null &amp;&amp; output.outputFile.name.endsWith(&apos;.apk&apos;)) {
+                def flavorName = variant.flavorName.startsWith(&quot;_&quot;) ? variant.flavorName.substring(1) : variant.flavorName
+                def apkFile = new File(
+                        output.outputFile.getParent(),
+                        &quot;lovesy_${flavorName}_v${variant.versionName}_${buildTime()}.apk&quot;)
+                output.outputFile = apkFile
+            }
+        }
+}
+</code></pre><p>现在 <code>outputFile</code> 不给你设值了，使用<a href="https://developer.android.com/r/tools/annotation-processor-error-message.html" target="_blank" rel="external">官网</a>上给的这种方式就行了</p>
+<pre><code>applicationVariants.all { variant -&gt;
+    variant.outputs.all {
+             //outputFileName = &quot;${variant.name}_${variant.versionName}_${buildTime()}.apk&quot;
+         }
+    }
+}
+</code></pre><h2 id="Unable-to-find-method-‘com-android-build-gradle-api-BaseVariant-getOutputs-Ljava-util-List"><a href="#Unable-to-find-method-‘com-android-build-gradle-api-BaseVariant-getOutputs-Ljava-util-List" class="headerlink" title="Unable to find method ‘com.android.build.gradle.api.BaseVariant.getOutputs()Ljava/util/List"></a>Unable to find method ‘com.android.build.gradle.api.BaseVariant.getOutputs()Ljava/util/List</h2><p>如果你使用了 Butterknife 最新的插件的话就会报这个错</p>
+<pre><code>Unable to find method &apos;com.android.build.gradle.api.BaseVariant.getOutputs()Ljava/util/List;&apos;.
+Possible causes for this unexpected error include:&lt;ul&gt;&lt;li&gt;Gradle&apos;s dependency cache may be corrupt (this sometimes occurs after a network connection timeout.)
+&lt;a href=&quot;syncProject&quot;&gt;Re-download dependencies and sync project (requires network)&lt;/a&gt;&lt;/li&gt;&lt;li&gt;The state of a Gradle build process (daemon) may be corrupt. Stopping all Gradle daemons may solve this problem.
+&lt;a href=&quot;stopGradleDaemons&quot;&gt;Stop Gradle build processes (requires restart)&lt;/a&gt;&lt;/li&gt;&lt;li&gt;Your project may be using a third-party plugin which is not compatible with the other plugins in the project or the version of Gradle requested by the project.&lt;/li&gt;&lt;/ul&gt;In the case of corrupt Gradle processes, you can also try closing the IDE and then killing all Java processes.
+</code></pre><p>在 github 上有专门的 <a href="https://github.com/JakeWharton/butterknife/issues/963#" target="_blank" rel="external">issue</a> ,我一个个的方法试了都试了一下，最后是把版本降到  8.4.0 就行了！！！</p>
+<pre><code>dependencies {
+    classpath &apos;com.android.tools.build:gradle:3.0.0&apos;
+    classpath &apos;com.jakewharton:butterknife-gradle-plugin:8.4.0&apos;
+}
+</code></pre><h2 id="All-flavors-must-now-belong-to-a-named-flavor-dimension"><a href="#All-flavors-must-now-belong-to-a-named-flavor-dimension" class="headerlink" title="All flavors must now belong to a named flavor dimension"></a>All flavors must now belong to a named flavor dimension</h2><p>这是一个多渠道打包的错误</p>
+<pre><code>All flavors must now belong to a named flavor dimension. Learn more at https://d.android.com/r/tools/flavorDimensions-missing-error-message.html
+</code></pre><p>3.0 版本的 Gradle 插件需要给 <code>flavors</code> 指定 <code>dimension</code> 什么意思呢。</p>
+<p>假如我们的 App 现在要分收费版和免费版，那么打渠道包的时候可能会这么写</p>
+<pre><code>productFlavors {
+    yingyongbao_price {
+        xxx
+    }
+    yingyongbao_free {
+        xxx
+    }
+    baidu_price {
+        xxx
+    }
+    baidu_free {
+        xxx
+    }
+    ... //其它平台
+}
+</code></pre><p>这么写也行但是不好，现在有更合理的写法，具体可以看<a href="https://developer.android.com/r/tools/annotation-processor-error-message.html" target="_blank" rel="external">官网</a></p>
+<pre><code>flavorDimensions &apos;free&apos;, &apos;notfree&apos;
+
+productFlavors {
+    yingyongbao {
+        dimension &apos;free&apos;
+        xxx
+    }
+    baidu {
+        dimension &apos;free&apos;
+        xxx
+    }
+
+    // 把收费和免费的区别写在下面这两块里就行了，最后它会帮我们自由组合
+    price {
+        dimension &apos;notfree&apos;
+        xxx
+    }
+
+    free {
+        dimension &apos;notfree&apos;
+        xxx
+    }
+}
+</code></pre><p>如果我们的 App 没有这类的区分，就简单了</p>
+<pre><code>flavorDimensions &quot;default&quot; //这里随便写一个默认值就行了
+
+productFlavors {
+    yingyongbao {}
+    baidu {}
+}
+</code></pre><h2 id="使用-implementation-和-api-代替-compile"><a href="#使用-implementation-和-api-代替-compile" class="headerlink" title="使用 implementation 和 api 代替 compile"></a>使用 implementation 和 api 代替 compile</h2><p>在 Android Gradle plugin 3.0 中 <code>compile</code> 过期了，可以使用 <code>implementation</code> 和 <code>api</code> 代替。</p>
+<p><code>api</code> 和 <code>compile</code> 功能相同。</p>
+<p>用 <code>implementation</code> 添加的依赖别的 <code>module</code> 依赖你它也使用不了你添加的依赖。</p>
+<p>比如 module1依赖是这样的</p>
+<pre><code>dependencies {
+    implementation &apos;com.android.support:appcompat-v7:27.0.0&apos;
+}
+</code></pre><p>module2的依赖是这样的</p>
+<pre><code>dependencies {
+    implementation project(&apos;:module1&apos;)
+}
+</code></pre><p>module2 依赖了 module1 但是使用不了 v7 包 ，如果想在 module2 中使用 v7 包那么在 module1 中可以这样添加依赖</p>
+<pre><code>dependencies {
+    api &apos;com.android.support:appcompat-v7:27.0.0&apos;
+}
+</code></pre></span>
       
     </div>
 
@@ -250,7 +346,7 @@
       
       <div class="copyright">
       <strong>版权声明: </strong>本文是 wangzai 原创文章，转载请注明出处！</br>
-      <strong>本文链接: </strong>http://dawangzai.com/2017/10/24/爱摄影上线了/ </br>
+      <strong>本文链接: </strong>http://dawangzai.com/2017/10/28/Android Gradle Plugin 2.3.3 升级 3.0.0 遇到的问题/ </br>
       </div>
       
 
@@ -259,18 +355,13 @@
           <div class="post-nav-next post-nav-item">
             
               <h4>PREVIOUS POST</h4>
-              <a href="/2017/10/07/appcompat-v7 是如何向下兼容主题样式的/" rel="next" title="appcompat-v7 是如何向下兼容主题样式的">
-                <i class="fa fa-chevron-left"></i> appcompat-v7 是如何向下兼容主题样式的
+              <a href="/2017/10/24/爱摄影上线了/" rel="next" title="爱摄影上线了">
+                <i class="fa fa-chevron-left"></i> 爱摄影上线了
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <h4>NEXT POST</h4>
-              <a href="/2017/10/28/Android Gradle Plugin 2.3.3 升级 3.0.0 遇到的问题/" rel="prev" title="Android Gradle Plugin 2.3.3 升级 3.0.0 遇到的问题">
-                Android Gradle Plugin 2.3.3 升级 3.0.0 遇到的问题 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
